@@ -5,6 +5,9 @@
     <div v-if="currentView == 'start'">
       <h2>Setup</h2>
       <p>Note: Data is not stored even in the browser, a refresh will clear data</p>
+      <label>Replace with your question</label>
+      <br/>
+      <input type="text" v-model="criteria" placeholder="Which is a higher priority?">
       <div class="textarea-container">
         <textarea v-model="itemsList" placeholder="Enter items separated by line breaks">
         </textarea>
@@ -18,7 +21,8 @@
     <div class="sort-container"
       v-if="currentView == 'sort'">
       <h2>Sort</h2>
-      <div class="card-container">
+      <p>Criteria: {{ criteria }}</p>
+      <div class="card-container" v-if="flashcards.length > 0">
         <div class="card">
           <div class="card-content">Card 1 Content</div>
         </div>
@@ -59,12 +63,57 @@ export default {
     return {
       itemsList: '',
       currentView: 'start', // Possible values: 'start', 'sort', 'bucket', 'final'
+      criteria: 'Which is a higher priority?',
+      flashcards: [
+        
+      ],
+      currentIndex: 0,
     }
   },
   methods: {
     changeMode(mode) {
-      this.currentView = mode
+      if (mode == "sort") {
+        this.flashcards = this.initFlashCards(this.itemsList)
+        this.currentView = mode
+      }
+      else if (mode == "bucket") {
+        this.currentView = mode
+      }
+      else {
+        this.currentView = mode
+      }
+      
+    },
+    quickSort(items) {
+      if (items.length <= 1) {
+        return items;
+      }
+      let pivotIndex = Math.floor(items.length / 2);
+      let pivot = items.splice(pivotIndex, 1)[0];
+      let left = [];
+      let right = []
+
+      items.forEach(item => {
+        if(this.compare(item, pivot)) {
+          left.push(item);
+        } else {
+          right.push(item);
+        }
+      });
+
+      return [...this.quickSort(left), pivot, ...this.quickSort(right)];
+    },
+    nextCard() {
+      if (this.currentIndex , this.flashcards.length - 1) {
+        this.currentIndex ++;
+      } else {
+        this.currentIndex = 0;
+      }
+    },
+    initFlashCards(itemsList) {
+      return itemsList.split("\n");
     }
+
   }
 }
 </script>
