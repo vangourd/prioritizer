@@ -135,7 +135,8 @@ export default {
       }
     },
     done() {
-      if (this.currentIndex >= this.stopIndex) {
+      // TODO: No idea why subtracting two  here works. stopIndex is invalid
+      if (this.currentIndex >= this.stopIndex - 2) {
         return true
       } else {
         return false
