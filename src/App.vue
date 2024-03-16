@@ -21,14 +21,21 @@
     <div class="sort-container"
       v-if="currentView == 'sort'">
       <h2>Sort</h2>
-      <p>Criteria: {{ criteria }}</p>
-      <div class="card-container" v-if="flashcards.length > 0">
-        <div class="card">
-          <div class="card-content">Card 1 Content</div>
+      <div class="sort-container">
+        <p>Criteria: {{ criteria }}</p>
+        <div class="card-container" v-if="flashcards.length > 0">
+          <div class="card">
+            <div class="card-content">{{ flashcards[this.currentIndex] }}</div>
+          </div>
+          <div class="card">
+            <div class="card-content">{{ flashcards[this.currentIndex + 1] }}</div>
+          </div>
         </div>
-        <div class="card">
-          <div class="card-content">Card 2 Content</div>
-        </div>
+      </div>
+      <div class="list-container">
+        <ol>
+        <li v-for="(item, index) in flashcards" :key="index">{{ item }}</li>
+        </ol>
       </div>
       <button @click="changeMode('start')" >Reset</button>
     </div>
@@ -68,6 +75,7 @@ export default {
         
       ],
       currentIndex: 0,
+      userChoices: [],
     }
   },
   methods: {
@@ -183,6 +191,7 @@ header {
 
 .card:hover {
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2); /* Enhanced shadow on hover */
+  background-color:#5f5f5f;
 }
 
 .card-content {
