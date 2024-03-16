@@ -63,7 +63,12 @@
     <div class="final-container"
       v-if="currentView == 'final'">
       <h2>Final</h2>
-      {{ final }}
+      <div>
+      <ol>
+        <li v-for="(item, index) in final" :key="index">{{ item }}</li>
+        </ol>
+      </div>
+      <button @click="copyTextToClipboard(this.final)">📋Copy</button>
       <button @click="changeMode('start')" >Reset</button>
     </div>
 
@@ -147,6 +152,14 @@ export default {
         this.flashcards = []
         this.currentIndex = 0
         this.currentView = 'final'
+    },
+    async copyTextToClipboard(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          console.log('Text successfully copied to clipboard');
+        } catch (err) {
+          console.error('Failed to copy text: ', err);
+        }
     }
 
 
