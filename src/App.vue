@@ -146,7 +146,7 @@ export default {
         this.final = this.flashcards
         this.flashcards = []
         this.currentIndex = 0
-        this.mode = 'final'
+        this.currentView = 'final'
     }
 
 
