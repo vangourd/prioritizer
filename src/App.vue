@@ -13,7 +13,7 @@
         </textarea>
       </div>
       <button @click="changeMode('sort')">Prioritize</button>
-      <button @click="changeMode('bucket')">Bucket</button>
+      <!--<button @click="changeMode('bucket')">Bucket</button>-->
       <button @click="changeMode('final')">Final</button>
     </div>
 
