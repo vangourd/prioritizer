@@ -102,25 +102,6 @@ export default {
       }
       
     },
-    quickSort(items) {
-      if (items.length <= 1) {
-        return items;
-      }
-      let pivotIndex = Math.floor(items.length / 2);
-      let pivot = items.splice(pivotIndex, 1)[0];
-      let left = [];
-      let right = []
-
-      items.forEach(item => {
-        if(this.compare(item, pivot)) {
-          left.push(item);
-        } else {
-          right.push(item);
-        }
-      });
-
-      return [...this.quickSort(left), pivot, ...this.quickSort(right)];
-    },
     nextCard() {
       if (this.done()) {
         this.finalize()
@@ -163,6 +144,7 @@ export default {
     finalize() {
         this.final = this.flashcards
         this.flashcards = []
+        this.currentIndex = 0
         this.mode = 'final'
     }
 
