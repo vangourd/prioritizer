@@ -25,10 +25,16 @@
         <p>Criteria: {{ criteria }}</p>
         <div class="card-container" v-if="flashcards.length > 0">
           <div class="card">
-            <div class="card-content">{{ flashcards[this.currentIndex] }}</div>
+            <div class="card-content" 
+            @click="this.nextCard">
+            {{ flashcards[this.currentIndex] }}
+            </div>
           </div>
           <div class="card">
-            <div class="card-content">{{ flashcards[this.currentIndex + 1] }}</div>
+            <div class="card-content"
+            @click="swapIndex(this.currentIndex,this.currentIndex + 1)">
+            {{ flashcards[this.currentIndex + 1] }}
+            </div>
           </div>
         </div>
       </div>
@@ -57,7 +63,7 @@
     <div class="final-container"
       v-if="currentView == 'final'">
       <h2>Final</h2>
-       
+      {{ final }}
       <button @click="changeMode('start')" >Reset</button>
     </div>
 
@@ -76,12 +82,16 @@ export default {
       ],
       currentIndex: 0,
       userChoices: [],
+      final: [
+
+      ],
     }
   },
   methods: {
     changeMode(mode) {
       if (mode == "sort") {
         this.flashcards = this.initFlashCards(this.itemsList)
+        this.stopIndex = this.flashcards.length
         this.currentView = mode
       }
       else if (mode == "bucket") {
@@ -112,15 +122,50 @@ export default {
       return [...this.quickSort(left), pivot, ...this.quickSort(right)];
     },
     nextCard() {
-      if (this.currentIndex , this.flashcards.length - 1) {
-        this.currentIndex ++;
+      if (this.done()) {
+        this.finalize()
       } else {
-        this.currentIndex = 0;
+        this.incrementIndex()
       }
+    },
+    swapIndex(a,b){
+      if (this.done()) {
+        this.finalize() 
+      } else {
+        let a_value = this.flashcards[a]
+        let b_value = this.flashcards[b]
+
+        this.flashcards[b] = a_value
+        this.flashcards[a] = b_value
+        this.incrementIndex()
+      } 
+   
     },
     initFlashCards(itemsList) {
       return itemsList.split("\n");
+    },
+ 
+    incrementIndex() {
+      console.log(`currentIndex: ${this.currentIndex} flashcardsLength: ${this.flashcards.length}`)
+      if (this.currentIndex == this.flashcards.length) {
+        this.currentIndex = 0
+      } else {
+        this.currentIndex += 1
+      }
+    },
+    done() {
+      if (this.currentIndex >= this.stopIndex) {
+        return true
+      } else {
+        return false
+      }
+    },
+    finalize() {
+        this.final = this.flashcards
+        this.flashcards = []
+        this.mode = 'final'
     }
+
 
   }
 }
@@ -187,6 +232,7 @@ header {
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Subtle shadow for depth */
   width: 45%; /* Each card takes up 45% of the container width */
   transition: 0.3s; /* Smooth transition for hover effects */
+  cursor: pointer;
 }
 
 .card:hover {
