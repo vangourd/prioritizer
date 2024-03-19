@@ -26,14 +26,14 @@
         <div class="card-container" v-if="flashcards.length > 0">
           <div class="card">
             <div class="card-content" 
-            @click="this.nextCard">
-            {{ flashcards[this.currentIndex] }}
+            @click="this.leftDecision">
+            {{ leftCard }}
             </div>
           </div>
           <div class="card">
             <div class="card-content"
-            @click="swapIndex(this.currentIndex,this.currentIndex + 1)">
-            {{ flashcards[this.currentIndex + 1] }}
+            @click="this.rightDecision">
+            {{ rightCard }}
             </div>
           </div>
         </div>
@@ -82,9 +82,9 @@ export default {
       itemsList: '',
       currentView: 'start', // Possible values: 'start', 'sort', 'bucket', 'final'
       criteria: 'Which is a higher priority?',
-      flashcards: [
-        
-      ],
+      flashcards: [],
+      leftCard: "",
+      rightCard: "",
       currentIndex: 0,
       userChoices: [],
       final: [
@@ -95,8 +95,7 @@ export default {
   methods: {
     changeMode(mode) {
       if (mode == "sort") {
-        this.flashcards = this.initFlashCards(this.itemsList)
-        this.stopIndex = this.flashcards.length
+        this.loadCards()
         this.currentView = mode
       }
       else if (mode == "bucket") {
@@ -107,30 +106,42 @@ export default {
       }
       
     },
-    nextCard() {
+    swapCards(arr, card_a, card_b) {
+      return arr.map((item, index) => {
+        if (index == card_a) return arr[card_b];
+        if (index == card_b) return arr[card_a];
+        return item;
+      });
+    },
+    leftDecision() {
+      this.nextChoice()
+    },
+    rightDecision() {
+      this.flashcards = this.swapCards(this.left_card.id, this.right_card.id)
+      this.nextChoice()
+    },
+    nextChoice() {
+      if (this.currentIndex == this.stopIndex -1) {
+        this.leftCard = this.flashcards[this.currentIndex]
+        this.rightCard = this.flashcards[0]
+      } else {
+        this.leftCard = this.flashcards[this.currentIndex]
+        this.rightCard = this.flashcards[this.currentIndex + 1]
+      }
+    },
+    preserveOrder() {
       if (this.done()) {
         this.finalize()
       } else {
         this.incrementIndex()
       }
     },
-    swapIndex(a,b){
-      if (this.done()) {
-        this.finalize() 
-      } else {
-        let a_value = this.flashcards[a]
-        let b_value = this.flashcards[b]
-
-        this.flashcards[b] = a_value
-        this.flashcards[a] = b_value
-        this.incrementIndex()
-      } 
-   
+    loadCards(){
+      this.flashcards = this.itemsList.split('\n');
+      this.stopIndex = this.flashcards.length
+      this.leftCard = this.flashcards[this.currentIndex];
+      this.rightCard = this.flashcards[this.currentIndex += 1];
     },
-    initFlashCards(itemsList) {
-      return itemsList.split("\n");
-    },
- 
     incrementIndex() {
       console.log(`currentIndex: ${this.currentIndex} flashcardsLength: ${this.flashcards.length}`)
       if (this.currentIndex == this.flashcards.length) {
@@ -140,8 +151,7 @@ export default {
       }
     },
     done() {
-      // TODO: No idea why subtracting two  here works. stopIndex is invalid
-      if (this.currentIndex >= this.stopIndex - 2) {
+      if (this.currentIndex == this.stopIndex) {
         return true
       } else {
         return false
@@ -163,7 +173,7 @@ export default {
     }
 
 
-  }
+  },
 }
 </script>
 
@@ -181,7 +191,7 @@ header {
   header {
     display: flex;
     place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+    paddingright: calc(var(--section-gap) / 2);
   }
 
   .logo {
