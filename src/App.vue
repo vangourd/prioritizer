@@ -1,6 +1,7 @@
 <template>
   <main>
     <h1>Prioritizer</h1>
+    {{ currentIndex }}
     <!-- START -->
     <div v-if="currentView == 'start'">
       <h2>Setup</h2>
@@ -26,24 +27,25 @@
         <div class="card-container" v-if="flashcards.length > 0">
           <div class="card">
             <div class="card-content" 
-            @click="this.leftDecision">
-            {{ leftCard }}
+            @click="this.decide('left')">
+            {{ this.flashcards[this.currentIndex] }}
             </div>
           </div>
           <div class="card">
             <div class="card-content"
-            @click="this.rightDecision">
-            {{ rightCard }}
+            @click="this.decide('right')">
+            {{ this.flashcards[this.currentIndex + 1] }}
             </div>
           </div>
         </div>
       </div>
       <div class="list-container">
         <ol>
-        <li v-for="(item, index) in flashcards" :key="index">{{ item }}</li>
+        <li v-for="(item, index) in sortedList" :key="index">{{ item }}</li>
         </ol>
       </div>
       <button @click="changeMode('start')" >Reset</button>
+      <button @click="changeMode('final')">Done</button>"
     </div>
     <!-- END SORT -->
 
@@ -65,7 +67,7 @@
       <h2>Final</h2>
       <div>
       <ol>
-        <li v-for="(item, index) in final" :key="index">{{ item }}</li>
+        <li v-for="(item, index) in sortedList" :key="index">{{ item }}</li>
         </ol>
       </div>
       <button @click="copyTextToClipboard(this.final)">📋Copy</button>
@@ -80,88 +82,53 @@ export default {
   data() {
     return {
       itemsList: '',
+      flashcards: [],
+      sortedList: [],
       currentView: 'start', // Possible values: 'start', 'sort', 'bucket', 'final'
       criteria: 'Which is a higher priority?',
-      flashcards: [],
-      leftCard: "",
-      rightCard: "",
       currentIndex: 0,
-      userChoices: [],
-      final: [
-
-      ],
     }
   },
   methods: {
     changeMode(mode) {
       if (mode == "sort") {
-        this.loadCards()
         this.currentView = mode
+        this.flashcards = this.itemsList.split('\n')
       }
       else if (mode == "bucket") {
         this.currentView = mode
       }
+      else if (mode == "start") {
+      	this.currentView = mode
+        this.flashcards = []
+        this.itemsList = ''
+        this.sortedList = []
+      }
       else {
         this.currentView = mode
       }
-      
     },
-    swapCards(arr, card_a, card_b) {
-      return arr.map((item, index) => {
-        if (index == card_a) return arr[card_b];
-        if (index == card_b) return arr[card_a];
-        return item;
-      });
-    },
-    leftDecision() {
-      this.nextChoice()
-    },
-    rightDecision() {
-      this.flashcards = this.swapCards(this.left_card.id, this.right_card.id)
-      this.nextChoice()
-    },
-    nextChoice() {
-      if (this.currentIndex == this.stopIndex -1) {
-        this.leftCard = this.flashcards[this.currentIndex]
-        this.rightCard = this.flashcards[0]
-      } else {
-        this.leftCard = this.flashcards[this.currentIndex]
-        this.rightCard = this.flashcards[this.currentIndex + 1]
+    decide(card) {
+      if (this.isFinished()){
+        this.changeMode('start')
+      }
+      if (card == 'right') {
+        console.debug("right card decided")
+      this.sortedList[this.currentIndex] = this.flashcards[this.currentIndex + 1]
+      this.sortedList[this.currentIndex + 1] = this.flashcards[this.currentIndex]
+      }
+      if (card == 'left') {
+        console.debug("left card decided")
+        this.sortedList.push(this.flashcards[this.currentIndex])
+        this.sortedList.push(this.flashcards[this.currentIndex + 1])
       }
     },
-    preserveOrder() {
-      if (this.done()) {
-        this.finalize()
-      } else {
-        this.incrementIndex()
-      }
-    },
-    loadCards(){
-      this.flashcards = this.itemsList.split('\n');
-      this.stopIndex = this.flashcards.length
-      this.leftCard = this.flashcards[this.currentIndex];
-      this.rightCard = this.flashcards[this.currentIndex += 1];
-    },
-    incrementIndex() {
-      console.log(`currentIndex: ${this.currentIndex} flashcardsLength: ${this.flashcards.length}`)
+    isFinished() {
       if (this.currentIndex == this.flashcards.length) {
-        this.currentIndex = 0
-      } else {
-        this.currentIndex += 1
-      }
-    },
-    done() {
-      if (this.currentIndex == this.stopIndex) {
         return true
       } else {
         return false
       }
-    },
-    finalize() {
-        this.final = this.flashcards
-        this.flashcards = []
-        this.currentIndex = 0
-        this.currentView = 'final'
     },
     async copyTextToClipboard(text) {
         try {
@@ -191,7 +158,7 @@ header {
   header {
     display: flex;
     place-items: center;
-    paddingright: calc(var(--section-gap) / 2);
+    padding-right: calc(var(--section-gap) / 2);
   }
 
   .logo {
